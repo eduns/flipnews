@@ -2,20 +2,16 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>SIIS</title>
+        <title>INDEX MAIN</title>
     </head>
     <body>
-        {% if current_user.is_authenticated %}
-        <h1>ALO {{ current_user.username }}</h1>
-        {% else %}
-        <h1>OLA USUÁRIO</h1>
-        {% endif %}
+        <h1>MAIN PAGE</h1>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul>
                     {% for message in messages %}
-                        <li>{{ message }}</li>
+                    <li>{{ message }}</li>
                     {% endfor %}
                 </ul>
             {% endif %}

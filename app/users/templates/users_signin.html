@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="{{ url_for('.static', filename='css/form.css') }}">
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        <h1>SIGN IN</h1>
+        
+        <div class="container">
+            {% block signin_form_content %}
+
+            <form method="post">
+
+                {{ signin_form.csrf_token }}
+
+                <div class="input">
+                    <label for="email">E-mail</label>
+                    {{ signin_form.email(placeholder="Seu e-mail") }}
+                </div>
+
+                <div class="input">
+                    <label for="password">Senha</label>
+                    {{ signin_form.password }}
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        {{ signin_form.remember_me }} Lembre-se de mim
+                    </label>
+                </div>
+
+                <button type="submit" class="btn submit">Entrar</button>
+                <button class="btn signup"><a href="{{ url_for('users_bp.signup') }}">Assine agora</a></button>
+            </form>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                        <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            
+            {% endblock %}
+        </div>
+    </body>
+</html>
