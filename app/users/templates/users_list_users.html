@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Todos os usuários</title>
+    </head>
+    <body>
+        {% block view_users %}
+
+            {% if users %}
+                <ul>
+                    {% for user in users %}
+                        <li>
+                            <div class="user">
+                                <a href="{{ url_for('users_bp.show_user', user_id=user.user_id) }}">
+                                    <h1>{{ user.username }}</h1>
+                                </a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+        {% endblock %}
+    </body>
+</html>

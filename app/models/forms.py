@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
+from flask_uploads import IMAGES
 from wtforms import (
-    StringField, PasswordField, BooleanField, TextAreaField, FileField
+    StringField, PasswordField, BooleanField, TextAreaField
 )
 from wtforms.validators import DataRequired, Email, Length
 
@@ -40,4 +42,20 @@ class SignupForm(FlaskForm):
     password = PasswordField('password', validators=[
         DataRequired(message='Insira a senha'),
         Length(min=6, message='Insira uma senha de pelo menos 6 caracteres')
+    ])
+
+
+class ArticleForm(FlaskForm):
+    """ Formulário de cadastro de notícia """
+    title = StringField('Título da notícia', validators=[
+        DataRequired(message='Insira o título desta notícia')
+    ])
+
+    text = TextAreaField('Texto da notícia', validators=[
+        DataRequired('Insira o texto desta notícia')
+    ])
+
+    image = FileField('Imagem da notícia', validators=[
+        FileAllowed(IMAGES, f'Escolha imagens válidas. Formatos permitidos: \
+            {", ".join(IMAGES)}')
     ])

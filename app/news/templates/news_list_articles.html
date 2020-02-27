@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        {% block view_articles %}
+
+            {% if articles %}
+                <ul>
+                    {% for article in articles %}
+                        <li>
+                            <div class="article">
+                                <a href="{{ url_for('news_bp.show_article', article_id=article.article_id) }}">
+                                    <h1>{{ article.title }}</h1>
+                                </a>
+                                {% if article.image_name %}
+                                    <img src="{{ url_for('.static', filename='images/{}'.format(article.image_name)) }}" alt="Imagem da notícia">
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+        {% endblock %}
+    </body>
+</html>

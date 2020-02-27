@@ -1,0 +1,72 @@
+<!doctype html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        <h1>Postar nova notícia</h1>
+
+        <div class="container">
+            {% block article_form_content %}
+
+            <form method="post" enctype="multipart/form-data">
+                
+                {{ article_form.csrf_token }}
+                
+                <div class="input">
+                    {{ article_form.title.label }}
+                    {{ article_form.title }}
+
+                    {% if article_form.title.errors %}
+                        <ul>
+                            {% for error in article_form.title.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="input">
+                    {{ article_form.text.label }}
+                    {{ article_form.text }}
+
+                    {% if article_form.text.errors %}
+                        <ul>
+                            {% for error in article_form.text.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <div class="input">
+                    {{ article_form.image.label }}
+                    {{ article_form.image }}
+
+                    {% if article_form.image.errors %}
+                        <ul>
+                            {% for error in article_form.image.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn submit">Postar</button>
+            </form>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                        <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            {% endblock %}
+        </div>
+    </body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+    </head>
+    <body>
+        <div class="article">
+            <h1>{{ user.name }}</h1>
+            
+            <p>
+                <span>
+                    Nome: {{ user.name }}
+                </span>
+                <span>
+                    E-mail: {{ user.email }}
+                </span>
+                <span>
+                    Username: {{ user.username }}
+                </span>
+                {% if user.is_admin() %}
+                <span>
+                    Administrador
+                </span>
+                {% endif %}
+            </p>
+        </div>        
+    </body>
+</html>

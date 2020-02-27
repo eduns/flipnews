@@ -2,6 +2,7 @@ from app import db
 
 
 class User(db.Model):
+    """ Classe de usuário """
     __tablename__ = 'users'
 
     user_id = db.Column(db.Integer(), primary_key=True)
@@ -10,6 +11,9 @@ class User(db.Model):
     username = db.Column(db.String(30), unique=True, nullable=False)
     _password = db.Column(db.String(), nullable=False)
     _is_admin = db.Column(db.Boolean(), default=False)
+
+    # Relacionamento com a tabela Article
+    articles = db.relationship('Article', backref='author', lazy=True)
 
     @property
     def is_authenticated(self):
@@ -37,3 +41,26 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+
+class Article(db.Model):
+    """ Classe de notícia """
+    __tablename__ = 'articles'
+
+    article_id = db.Column(db.Integer(), primary_key=True)
+    title = db.Column(db.String(), nullable=False)
+    text = db.Column(db.Text(), nullable=False)
+    created_at = db.Column(db.DateTime(), nullable=False)
+    image_name = db.Column(db.String(), nullable=True)
+    author_id = db.Column(db.Integer(), db.ForeignKey('users.user_id'),
+                          nullable=False)
+
+    def __init__(self, title, text, created_at, image_name, author_id):
+        self.title = title
+        self.text = text
+        self.created_at = created_at
+        self.image_name = image_name
+        self.author_id = author_id
+
+    def __repr__(self):
+        return f'<Article {self.article_id}>'

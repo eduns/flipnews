@@ -5,13 +5,11 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
 
 db = SQLAlchemy()
-
 lm = LoginManager()
-
 migrate = Migrate()
 
 
-def page_not_found(e):
+def page_not_found():
     return render_template('page_not_found.html'), 404
 
 
@@ -31,9 +29,12 @@ def create_app():
         # Importa e registra os Blueprints
         from app.main_routes import main_bp
         from app.users.users_routes import users_bp
+        from app.news.news_routes import news_bp
 
         app.register_blueprint(main_bp)
         app.register_blueprint(users_bp)
+        app.register_blueprint(news_bp)
+
         app.register_error_handler(404, page_not_found)
 
         # Adiciona o comando do db ao app

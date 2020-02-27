@@ -1,19 +1,18 @@
 from flask import (
-    Blueprint, render_template, jsonify, redirect, url_for, request, flash,
-    current_app as app
+    Blueprint, render_template, render_template_string, jsonify, redirect,
+    url_for, request, flash, current_app as app
 )
 from flask_assets import Environment
 from flask_login import (
-    login_required, login_user, logout_user, current_user
+    login_required, login_user, logout_user, current_user,
 )
-
-from pprint import pprint
 
 # Models
 from app.models.forms import SigninForm, SignupForm
 from app.models.tables import User
 
 from app import lm, db
+
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -37,13 +36,32 @@ def load_user(id_user):
 def unauthorized():
     """ Redirecionar usuários não autenticados """
     flash('Você deve estar autenticado para ver esta página')
-    return redirect(url_for('users_bp.signin'))
+    return redirect(url_for('users_bp.signin', next=request.endpoint))
 
 
 @users_bp.route('/', methods=['GET'])
+@login_required
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('main_bp.index'))
+
+
+@users_bp.route('/view/', methods=['GET'])
+@login_required
+def list_users():
+    """ Lista todos os usuários """
+    users = User.query.with_entities(
+        User.user_id, User.username
+    ).all()
+    return render_template("users_list_users.html", users=users)
+
+
+@users_bp.route('/view/<int:user_id>', methods=['GET'])
+@login_required
+def show_user(user_id):
+    """ Carrega o usuário pelo respectivo `user_id` """
+    user = User.query.get(user_id)
+    return render_template('users_view_user.html', user=user)
 
 
 @users_bp.route('/auth/signout/')
@@ -72,9 +90,15 @@ def signin():
 
             user = User.query.filter_by(email=email).first()
 
-            if user and user.password == password:
+            if user and user._password == password:
                 login_user(user)
                 logging.info(f'[USER {user.username} SIGNED IN]')
+
+                next_url = request.args.get('next')
+
+                if next_url:
+                    return redirect(url_for(next_url))
+
                 flash(f'Bem-vindo(a), {user.username}!')
                 return redirect(url_for('users_bp.index'))
             else:
@@ -100,7 +124,12 @@ def signup():
             username = signup_form.data.get('username')
             password = signup_form.data.get('password')
 
-            user = User(name, email, username, password)
+            user = User(
+                name=name,
+                email=email,
+                username=username,
+                password=password
+            )
 
             db.session.add(user)
             db.session.commit()
