@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
@@ -9,18 +9,24 @@ lm = LoginManager()
 migrate = Migrate()
 
 
-def page_not_found():
-    return render_template('page_not_found.html'), 404
+def page_not_found(err):
+    """ Renderizar erros 404 """
+    template = 'page_not_found.html'
+
+    if request.blueprint is 'news_bp':
+        template = 'news_page_not_found.html'
+
+    return render_template(template, response=err.response), 404
 
 
 def create_app():
     """ Inicializa o app """
-    app = Flask(__name__, instance_relative_config=False)
+    app = Flask('FlipNews', instance_relative_config=False)
 
     # Aplica configurações
     app.config.from_object('config')
 
-    # Inicializa as dependências ao app
+    # Inicializa as extensões ao app
     db.init_app(app)
     lm.init_app(app)
     migrate.init_app(app, db)

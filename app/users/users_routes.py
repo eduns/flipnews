@@ -100,7 +100,7 @@ def signin():
                     return redirect(url_for(next_url))
 
                 flash(f'Bem-vindo(a), {user.username}!')
-                return redirect(url_for('users_bp.index'))
+                return redirect(url_for('news_bp.show_articles'))
             else:
                 flash('Usuário ou senha inválidos!')
         else:

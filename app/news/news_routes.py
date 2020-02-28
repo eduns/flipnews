@@ -1,5 +1,6 @@
 from flask import (
-    Blueprint, render_template, jsonify, request, flash, current_app as app
+    Blueprint, render_template, jsonify, request, redirect,
+    abort, url_for, flash, current_app as app
 )
 from flask_login import (
     login_required, current_user
@@ -23,6 +24,9 @@ news_bp = Blueprint('news_bp', __name__,
                     url_prefix='/news')
 
 
+#news_bp.register_error_handler(404, page_not_found)
+
+
 @news_bp.route('/', methods=['GET'])
 def index():
     """ Rota de notícias """
@@ -43,6 +47,13 @@ def show_articles():
 def show_article(article_id):
     """ Carrega o artigo pelo respectivo `article_id` """
     article = Article.query.get(article_id)
+
+    if not article:
+        response = {
+            'title': 'Conteúdo não encontrado',
+            'message': 'Desculpe, este conteúdo não existe :('
+        }
+        abort(404, response=response)
     return render_template('news_view_article.html', article=article)
 
 
@@ -58,13 +69,14 @@ def post_article():
             title = article_form.data.get('title')
             text = article_form.data.get('text')
             image = request.files.get('image')
-            filename = None
-
             created_at = datetime.now()
+            filename = None
 
             if image:
                 filename = f'{uuid4()}_{secure_filename(image.filename)}'
-                image_url = path.join(path.curdir, 'images', filename)
+                image_url = path.join(
+                    app.config['UPLOADED_IMAGES_DEST'], filename
+                )
                 image.save(image_url)
                 flash('Upload da imagem concluído')
 
@@ -80,6 +92,7 @@ def post_article():
             db.session.commit()
 
             flash('Notícia postada com sucesso')
+            return redirect(url_for('.post_article'))
 
         else:
             logging.warn(f'ERRORS: {article_form.errors}')
