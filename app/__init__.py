@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
@@ -13,8 +13,14 @@ def page_not_found(err):
     """ Renderizar erros 404 """
     template = 'page_not_found.html'
 
-    if request.blueprint is 'news_bp':
-        template = 'news_page_not_found.html'
+    templates = {
+        '/news': 'news_page_not_found.html'
+    }
+
+    for tpl in templates.keys():
+        if request.path.startswith(tpl):
+            template = templates.get(tpl)
+            break
 
     return render_template(template, response=err.response), 404
 

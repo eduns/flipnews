@@ -6,11 +6,32 @@
     </head>
     <body>
         <div class="article">
+            {% if current_user.is_admin() %}
+                <form method="POST" action="{{ url_for('.delete_article', article_id=article.article_id) }}">
+                    <button type="submit">Apagar notícia</button>
+                </form>
+
+                <form method="POST" action="{{ url_for('.update_article', article_id=article.article_id) }}">
+                    <button type="submit">Editar</button>
+                </form>
+            {% endif %}
+
             <h1>{{ article.title }}</h1>
+
             {% if article.image_name %}
                 <img src="{{ url_for('.static', filename='images/{}'.format(article.image_name)) }}" alt="Imagem da notícia">
             {% endif %}
+
             <p>{{ article.text }}</p>
         </div>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                    <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
     </body>
 </html>

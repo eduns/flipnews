@@ -26,17 +26,17 @@ assets = Environment(app)
 
 
 @lm.user_loader
-def load_user(id_user):
-    """ Busca o usuário relacionado ao `id_user` da sessão """
-    if id_user is not None:
-        return User.query.get(id_user)
+def load_user(user_id):
+    """ Busca o usuário relacionado ao `user_id` da sessão """
+    if user_id is not None:
+        return User.query.get(user_id)
 
 
 @lm.unauthorized_handler
 def unauthorized():
     """ Redirecionar usuários não autenticados """
     flash('Você deve estar autenticado para ver esta página')
-    return redirect(url_for('users_bp.signin', next=request.endpoint))
+    return redirect(url_for('users_bp.signin', next=request.path))
 
 
 @users_bp.route('/', methods=['GET'])
@@ -97,7 +97,7 @@ def signin():
                 next_url = request.args.get('next')
 
                 if next_url:
-                    return redirect(url_for(next_url))
+                    return redirect(next_url)
 
                 flash(f'Bem-vindo(a), {user.username}!')
                 return redirect(url_for('news_bp.show_articles'))

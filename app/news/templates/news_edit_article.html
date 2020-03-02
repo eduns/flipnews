@@ -3,14 +3,19 @@
     <head>
         <meta charset="UTF-8">
         <title>{{ title }}</title>
+        <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery-3.4.1.min.js') }}"></script>
     </head>
     <body>
-        <h1>Postar nova notícia</h1>
-
+        <h1>{{ form_title }}</h1>
+        
         <div class="container">
             {% block article_form_content %}
 
-            <form method="post" enctype="multipart/form-data">
+            <form
+                id="article-form"
+                method="post"
+                action="{{ form_action }}"
+                enctype="multipart/form-data">
                 
                 {{ article_form.csrf_token }}
                 
@@ -30,7 +35,7 @@
                 <div class="input">
                     {{ article_form.text.label }}
                     {{ article_form.text }}
-
+                    
                     {% if article_form.text.errors %}
                         <ul>
                             {% for error in article_form.text.errors %}
@@ -43,6 +48,24 @@
                 <div class="input">
                     {{ article_form.image.label }}
                     {{ article_form.image }}
+                    
+                    <img id="preview-img" src="{{ url_for('.static', filename='images/{}'.format(image_name)) }}"/>
+                    
+                    <script type="text/javascript">
+                        function imgPreview(input) {
+                            if (input.files && input.files[0]) {
+                                var reader = new FileReader();
+                                reader.onload = function (e) {
+                                    $('#preview-img').attr('src', e.target.result);
+                                };
+                                reader.readAsDataURL(input.files[0]);
+                            }
+                        }
+
+                        $("#image").change(function () {
+                            imgPreview(this);
+                        });
+                    </script>
 
                     {% if article_form.image.errors %}
                         <ul>
@@ -68,5 +91,6 @@
 
             {% endblock %}
         </div>
+        
     </body>
 </html>
