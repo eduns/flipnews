@@ -16,7 +16,7 @@
                                     <h1>{{ article.title }}</h1>
                                 </a>
                                 {% if article.image_name %}
-                                    <img src="{{ url_for('.static', filename='images/{}'.format(article.image_name)) }}" alt="Imagem da notícia">
+                                    <img src="{{ url_for('.static', filename='images/news/{}'.format(article.image_name)) }}" alt="Imagem da notícia">
                                 {% endif %}
                             </div>
                         </li>

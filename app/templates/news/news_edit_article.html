@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>{{ title }}</title>
-        <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('.static', filename='js/news/jquery-3.4.1.min.js') }}"></script>
     </head>
     <body>
         <h1>{{ form_title }}</h1>
@@ -49,7 +49,7 @@
                     {{ article_form.image.label }}
                     {{ article_form.image }}
                     
-                    <img id="preview-img" src="{{ url_for('.static', filename='images/{}'.format(image_name)) }}"/>
+                    <img id="preview-img" src="{{ url_for('.static', filename='images/news/{}'.format(image_name)) }}"/>
                     
                     <script type="text/javascript">
                         function imgPreview(input) {

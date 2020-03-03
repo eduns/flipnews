@@ -12,7 +12,7 @@
                     {% for user in users %}
                         <li>
                             <div class="user">
-                                <a href="{{ url_for('users_bp.show_user', user_id=user.user_id) }}">
+                                <a href="{{ url_for('users_bp.show_user', username=user.username) }}">
                                     <h1>{{ user.username }}</h1>
                                 </a>
                             </div>

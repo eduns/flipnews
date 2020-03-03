@@ -1,6 +1,6 @@
 from flask import (
     Blueprint, render_template, jsonify, request, redirect,
-    abort, url_for, send_from_directory, flash, current_app as app
+    abort, url_for, flash, current_app as app
 )
 from flask_login import (
     login_required, current_user
@@ -13,12 +13,12 @@ from app.models.forms import ArticleForm
 from app.models.tables import Article
 
 from uuid import uuid4
-import os
+from os import system
 import logging
 from datetime import datetime
 
 news_bp = Blueprint('news_bp', __name__,
-                    template_folder='templates',
+                    template_folder='templates/news',
                     static_folder='static',
                     url_prefix='/news')
 
@@ -30,7 +30,7 @@ def get_secure_image_name(article_image):
 
 def get_image_url(image_name):
     """ Retorna a url de onde a imagem será salva """
-    return f"{app.config['UPLOADED_IMAGES_DEST']}/{image_name}"
+    return f"{app.config['UPLOADED_NEWS_IMAGES_DEST']}/{image_name}"
 
 
 @news_bp.route('/', methods=['GET'])
@@ -144,7 +144,8 @@ def update_article(article_id):
                         article_image.save(image_url)
                         flash('Upload da nova imagem concluído')
 
-                        os.system(f'rm {app.config["UPLOADED_IMAGES_DEST"]}/{image_name}')
+                        system(f'rm {app.config["UPLOADED_NEWS_IMAGES_DEST"]}/\
+                        {image_name}')
 
                     db.session.commit()
 
@@ -168,14 +169,15 @@ def update_article(article_id):
                                article_id=article.article_id))
 
 
-@news_bp.route('/articles/delete/<int:article_id>', methods=['GET', 'POST'])
+@news_bp.route('/articles/delete/<int:article_id>', methods=['POST'])
 def delete_article(article_id):
     article = Article.query.get(article_id)
     if article:
         db.session.delete(article)
         db.session.commit()
 
-        os.system(f'rm {app.config["UPLOADED_IMAGES_DEST"]}/{article.image_name}')
+        system(f'rm {app.config["UPLOADED_NEWS_IMAGES_DEST"]}/\
+        {article.image_name}')
 
         flash('Notícia apagada com sucesso')
         return redirect(url_for('.show_articles'))

@@ -2,7 +2,6 @@ from flask import (
     Blueprint, render_template, render_template_string, jsonify, redirect,
     url_for, request, flash, current_app as app
 )
-from flask_assets import Environment
 from flask_login import (
     login_required, login_user, logout_user, current_user,
 )
@@ -19,10 +18,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 users_bp = Blueprint('users_bp', __name__, url_prefix='/users',
-                     template_folder='templates',
+                     template_folder='templates/users',
                      static_folder='static')
-
-assets = Environment(app)
 
 
 @lm.user_loader
@@ -46,7 +43,7 @@ def index():
         return redirect(url_for('main_bp.index'))
 
 
-@users_bp.route('/view/', methods=['GET'])
+@users_bp.route('/all/', methods=['GET'])
 @login_required
 def list_users():
     """ Lista todos os usuários """
@@ -56,11 +53,11 @@ def list_users():
     return render_template("users_list_users.html", users=users)
 
 
-@users_bp.route('/view/<int:user_id>', methods=['GET'])
+@users_bp.route('/<username>/details', methods=['GET'])
 @login_required
-def show_user(user_id):
+def show_user(username):
     """ Carrega o usuário pelo respectivo `user_id` """
-    user = User.query.get(user_id)
+    user = User.query.filter_by(username=username).first()
     return render_template('users_view_user.html', user=user)
 
 
@@ -114,6 +111,9 @@ def signin():
 @users_bp.route('/auth/signup/', methods=['GET', 'POST'])
 def signup():
     """ Cadastro de usuários """
+    if current_user.is_authenticated:
+        return redirect(url_for('main_bp.index'))
+
     signup_form = SignupForm()
 
     if request.method == 'POST':
@@ -134,8 +134,9 @@ def signup():
             db.session.add(user)
             db.session.commit()
 
-            flash('Seja bem-vindo(a)!')
-            return redirect(url_for('main_bp.index'))
+            flash(f'Seja bem-vindo(a), {username}!, se autentique para\
+                continuar')
+            return redirect(url_for('main_bp.signin'))
         else:
             logging.warn(f'[APP ERRORS: {signup_form.errors}]')
             flash('Erro na validação dos dados')

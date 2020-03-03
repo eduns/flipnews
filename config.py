@@ -1,10 +1,12 @@
 APP_NAME = 'FlipNews'
 
+ASSETS_DEBUG = True
+
 DEBUG = True
+
+SECRET_KEY = 'edugenix'
 
 SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:edugenix@localhost:5432/flipnews'
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-SECRET_KEY = 'edugenix'
-
-UPLOADED_IMAGES_DEST = 'app/news/static/images'
+UPLOADED_NEWS_IMAGES_DEST = 'app/static/images/news'
