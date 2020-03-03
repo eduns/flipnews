@@ -38,19 +38,16 @@ def unauthorized():
 
 @users_bp.route('/', methods=['GET'])
 @login_required
-def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('main_bp.index'))
-
-
-@users_bp.route('/all/', methods=['GET'])
-@login_required
-def list_users():
+def show_users():
     """ Lista todos os usuários """
-    users = User.query.with_entities(
-        User.user_id, User.username
-    ).all()
-    return render_template("users_list_users.html", users=users)
+    if current_user.is_admin():
+        users = User.query.with_entities(
+            User.user_id, User.username
+        ).all()
+        return render_template("users_list_users.html", users=users)
+
+    flash('Você não tem permissão para acessar esta página!')
+    return redirect(url_for('news_bp.show_posts'))
 
 
 @users_bp.route('/<username>/details', methods=['GET'])
@@ -97,7 +94,7 @@ def signin():
                     return redirect(next_url)
 
                 flash(f'Bem-vindo(a), {user.username}!')
-                return redirect(url_for('news_bp.show_articles'))
+                return redirect(url_for('news_bp.show_posts'))
             else:
                 flash('Usuário ou senha inválidos!')
         else:
@@ -134,9 +131,8 @@ def signup():
             db.session.add(user)
             db.session.commit()
 
-            flash(f'Seja bem-vindo(a), {username}!, se autentique para\
-                continuar')
-            return redirect(url_for('main_bp.signin'))
+            flash(f'Se autentique para  continuar')
+            return redirect(url_for('users_bp.signin'))
         else:
             logging.warn(f'[APP ERRORS: {signup_form.errors}]')
             flash('Erro na validação dos dados')

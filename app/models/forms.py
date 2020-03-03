@@ -45,7 +45,7 @@ class SignupForm(FlaskForm):
     ])
 
 
-class ArticleForm(FlaskForm):
+class PostForm(FlaskForm):
     """ Formulário de cadastro de notícia """
     title = StringField('Título da notícia', validators=[
         DataRequired(message='Insira o título desta notícia')

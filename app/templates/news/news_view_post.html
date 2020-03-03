@@ -24,6 +24,7 @@
 
             <p>{{ article.text }}</p>
         </div>
+        <button><a href="{{ url_for('news_bp.show_articles') }}">Voltar</a></button>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul>

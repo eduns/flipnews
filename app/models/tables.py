@@ -12,8 +12,8 @@ class User(db.Model):
     _password = db.Column(db.String(), nullable=False)
     _is_admin = db.Column(db.Boolean(), default=False)
 
-    # Relacionamento com a tabela Article
-    articles = db.relationship('Article', backref='author', lazy=True)
+    # Relacionamento com a tabela Post
+    posts = db.relationship('Post', backref='author', lazy=True)
 
     @property
     def is_authenticated(self):
@@ -43,11 +43,11 @@ class User(db.Model):
         return f'<User {self.username}>'
 
 
-class Article(db.Model):
+class Post(db.Model):
     """ Classe de notícia """
-    __tablename__ = 'articles'
+    __tablename__ = 'posts'
 
-    article_id = db.Column(db.Integer(), primary_key=True)
+    post_id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.String(), nullable=False)
     text = db.Column(db.Text(), nullable=False)
     created_at = db.Column(db.DateTime(), nullable=False)
@@ -63,4 +63,4 @@ class Article(db.Model):
         self.author_id = author_id
 
     def __repr__(self):
-        return f'<Article {self.article_id}>'
+        return f'<Post {self.post_id}>'

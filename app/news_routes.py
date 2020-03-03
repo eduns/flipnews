@@ -9,8 +9,8 @@ from werkzeug.utils import secure_filename
 
 from app import db
 
-from app.models.forms import ArticleForm
-from app.models.tables import Article
+from app.models.forms import PostForm
+from app.models.tables import Post
 
 from uuid import uuid4
 from os import system
@@ -23,9 +23,9 @@ news_bp = Blueprint('news_bp', __name__,
                     url_prefix='/news')
 
 
-def get_secure_image_name(article_image):
-    """ Define um nome seguro para a imagem """
-    return f'{uuid4()}_{secure_filename(article_image.filename)}'
+def get_unique_image_name(post_image):
+    """ Define um nome seguro e único para a imagem """
+    return f'{uuid4()}_{secure_filename(post_image.filename)}'
 
 
 def get_image_url(image_name):
@@ -39,109 +39,109 @@ def index():
     return render_template('news.html')
 
 
-@news_bp.route('/articles/', methods=['GET'])
-def show_articles():
+@news_bp.route('/posts/', methods=['GET'])
+def show_posts():
     """ Carrega todas as notícias """
-    articles = Article.query.with_entities(
-        Article.article_id, Article.title, Article.image_name
+    posts = Post.query.with_entities(
+        Post.post_id, Post.title, Post.image_name
     ).all()
-    return render_template('news_list_articles.html', articles=articles)
+    return render_template('news_show_posts.html', posts=posts)
 
 
-@news_bp.route('/articles/view/<int:article_id>',
+@news_bp.route('/posts/view/<int:post_id>',
                methods=['GET', 'POST', 'DELETE'])
 @login_required
-def show_article(article_id):
-    """ Carrega o artigo pelo respectivo `article_id` """
-    article = Article.query.get(article_id)
+def show_post(post_id):
+    """ Carrega o post pelo respectivo `post_id` """
+    post = Post.query.get(post_id)
 
-    if not article:
+    if not post:
         response = {
             'title': 'Conteúdo não encontrado',
             'message': 'Desculpe, este conteúdo não existe :('
         }
         abort(404, response=response)
 
-    return render_template('news_view_article.html', article=article)
+    return render_template('news_view_post.html', post=post)
 
 
-@news_bp.route('/articles/post/', methods=['GET', 'POST'])
+@news_bp.route('/posts/add/', methods=['GET', 'POST'])
 @login_required
-def post_article():
+def add_post():
     """ Cadastrar novas notícias """
-    article_form = ArticleForm()
+    post_form = PostForm()
 
     if request.method == 'POST':
 
-        if article_form.validate_on_submit():
-            article_title = article_form.data.get('title')
-            article_text = article_form.data.get('text')
-            article_image = request.files.get('image')
-            article_created_at = datetime.now()
-            article_image_name = None
+        if post_form.validate_on_submit():
+            post_title = post_form.data.get('title')
+            post_text = post_form.data.get('text')
+            post_image = request.files.get('image')
+            post_created_at = datetime.now()
+            post_image_name = None
 
-            if article_image:
-                article_image_name = get_secure_image_name(article_image)
-                image_url = get_image_url(article_image_name)
+            if post_image:
+                post_image_name = get_unique_image_name(post_image)
+                image_url = get_image_url(post_image_name)
 
-                article_image.save(image_url)
+                post_image.save(image_url)
                 flash('Upload da imagem concluído')
 
-            article = Article(
-                title=article_title,
-                text=article_text,
-                created_at=article_created_at,
-                image_name=article_filename,
+            post = Post(
+                title=post_title,
+                text=post_text,
+                created_at=post_created_at,
+                image_name=post_filename,
                 author_id=current_user.get_id()
             )
 
-            db.session.add(article)
+            db.session.add(post)
             db.session.commit()
 
             flash('Notícia postada com sucesso')
-            return redirect(url_for('.post_article'))
+            return redirect(url_for('.add_post'))
 
         else:
-            logging.warn(f'ERRORS: {article_form.errors}')
+            logging.warn(f'ERRORS: {post_form.errors}')
 
-    return render_template('news_edit_article.html',
-                           article_form=article_form,
+    return render_template('news_edit_post.html',
+                           post_form=post_form,
                            title="Nova notícia | FlipNews",
                            form_title="Postar nova notícia")
 
 
-@news_bp.route('/articles/edit/<int:article_id>', methods=['GET', 'POST'])
-def update_article(article_id):
+@news_bp.route('/posts/edit/<int:post_id>', methods=['GET', 'POST'])
+def update_post(post_id):
     image_name = None
 
-    article = Article.query.get(article_id)
-    article_form = ArticleForm(obj=article)
+    post = Post.query.get(post_id)
+    post_form = PostForm(obj=post)
 
-    if article:
-        image_name = article.image_name
+    if post:
+        image_name = post.image_name
 
         if request.method == 'POST':
 
             if request.referrer == request.url:
 
-                if article_form.validate_on_submit():
+                if post_form.validate_on_submit():
 
-                    article_title = article_form.title.data
-                    article_text = article_form.text.data
-                    article_image = request.files.get('image')
-                    article_image_name = None
+                    post_title = post_form.title.data
+                    post_text = post_form.text.data
+                    post_image = request.files.get('image')
+                    post_image_name = None
 
-                    article.title = article_title
-                    article.text = article_text
+                    post.title = post_title
+                    post.text = post_text
 
-                    if article_image:
-                        article_image_name = get_secure_image_name(
-                            article_image)
-                        image_url = get_image_url(article_image_name)
+                    if post_image:
+                        post_image_name = get_unique_image_name(
+                            post_image)
+                        image_url = get_image_url(post_image_name)
 
-                        article.image_name = article_image_name
+                        post.image_name = post_image_name
 
-                        article_image.save(image_url)
+                        post_image.save(image_url)
                         flash('Upload da nova imagem concluído')
 
                         system(f'rm {app.config["UPLOADED_NEWS_IMAGES_DEST"]}/\
@@ -150,37 +150,37 @@ def update_article(article_id):
                     db.session.commit()
 
                     flash('Notícia atualizada com sucesso')
-                    return redirect(url_for('.show_articles'))
+                    return redirect(url_for('.show_posts'))
 
                 else:
-                    logging.warn(f'ERRORS: {article_form.errors}')
+                    logging.warn(f'ERRORS: {post_form.errors}')
 
     else:
         flash('Notícia inexistente!')
-        return redirect(url_for('.show_articles'))
+        return redirect(url_for('.show_posts'))
 
-    return render_template('news_edit_article.html',
-                           article_form=article_form,
+    return render_template('news_edit_post.html',
+                           post_form=post_form,
                            image_name=image_name,
                            title="Editar Notícia | FlipNews",
                            form_title="Editar notícia",
                            form_action=url_for(
-                               '.update_article',
-                               article_id=article.article_id))
+                               '.update_post',
+                               post_id=post.post_id))
 
 
-@news_bp.route('/articles/delete/<int:article_id>', methods=['POST'])
-def delete_article(article_id):
-    article = Article.query.get(article_id)
-    if article:
-        db.session.delete(article)
+@news_bp.route('/posts/delete/<int:post_id>', methods=['POST'])
+def delete_post(post_id):
+    post = Post.query.get(post_id)
+    if post:
+        db.session.delete(post)
         db.session.commit()
 
         system(f'rm {app.config["UPLOADED_NEWS_IMAGES_DEST"]}/\
-        {article.image_name}')
+        {post.image_name}')
 
         flash('Notícia apagada com sucesso')
-        return redirect(url_for('.show_articles'))
+        return redirect(url_for('.show_posts'))
     else:
         flash('Erro ao apagar a notícia')
-        return redirect(request.referrer)
+    return redirect(request.referrer)
