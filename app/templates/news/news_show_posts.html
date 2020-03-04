@@ -5,18 +5,18 @@
         <title>{{ title }}</title>
     </head>
     <body>
-        {% block view_articles %}
+        {% block view_posts %}
 
-            {% if articles %}
+            {% if posts %}
                 <ul>
-                    {% for article in articles %}
+                    {% for post in posts %}
                         <li>
-                            <div class="article">
-                                <a href="{{ url_for('news_bp.show_article', article_id=article.article_id) }}">
-                                    <h1>{{ article.title }}</h1>
+                            <div class="post">
+                                <a href="{{ url_for('news_bp.show_post', post_id=post.post_id) }}">
+                                    <h1>{{ post.title }}</h1>
                                 </a>
-                                {% if article.image_name %}
-                                    <img src="{{ url_for('.static', filename='images/news/{}'.format(article.image_name)) }}" alt="Imagem da notícia">
+                                {% if post.image_name %}
+                                    <img src="{{ url_for('.static', filename='images/news/{}'.format(post.image_name)) }}" alt="Imagem da notícia">
                                 {% endif %}
                             </div>
                         </li>

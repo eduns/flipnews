@@ -2,29 +2,29 @@
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>{{ article.title }}</title>
+        <title>{{ post.title }}</title>
     </head>
     <body>
-        <div class="article">
+        <div class="post">
             {% if current_user.is_admin() %}
-                <form method="POST" action="{{ url_for('.delete_article', article_id=article.article_id) }}">
+                <form method="POST" action="{{ url_for('.delete_post', post_id=post.post_id) }}">
                     <button type="submit">Apagar notícia</button>
                 </form>
 
-                <form method="POST" action="{{ url_for('.update_article', article_id=article.article_id) }}">
+                <form method="POST" action="{{ url_for('.update_post', post_id=post.post_id) }}">
                     <button type="submit">Editar</button>
                 </form>
             {% endif %}
 
-            <h1>{{ article.title }}</h1>
+            <h1>{{ post.title }}</h1>
 
-            {% if article.image_name %}
-                <img src="{{ url_for('.static', filename='images/news/{}'.format(article.image_name)) }}" alt="Imagem da notícia">
+            {% if post.image_name %}
+                <img src="{{ url_for('.static', filename='images/news/{}'.format(post.image_name)) }}" alt="Imagem da notícia">
             {% endif %}
 
-            <p>{{ article.text }}</p>
+            <p>{{ post.text }}</p>
         </div>
-        <button><a href="{{ url_for('news_bp.show_articles') }}">Voltar</a></button>
+        <button><a href="{{ url_for('news_bp.show_posts') }}">Voltar</a></button>
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul>

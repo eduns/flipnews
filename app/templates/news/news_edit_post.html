@@ -9,23 +9,23 @@
         <h1>{{ form_title }}</h1>
         
         <div class="container">
-            {% block article_form_content %}
+            {% block post_form_content %}
 
             <form
-                id="article-form"
+                id="post-form"
                 method="post"
                 action="{{ form_action }}"
                 enctype="multipart/form-data">
                 
-                {{ article_form.csrf_token }}
+                {{ post_form.csrf_token }}
                 
                 <div class="input">
-                    {{ article_form.title.label }}
-                    {{ article_form.title }}
+                    {{ post_form.title.label }}
+                    {{ post_form.title }}
 
-                    {% if article_form.title.errors %}
+                    {% if post_form.title.errors %}
                         <ul>
-                            {% for error in article_form.title.errors %}
+                            {% for error in post_form.title.errors %}
                                 <li>{{ error }}</li>
                             {% endfor %}
                         </ul>
@@ -33,12 +33,12 @@
                 </div>
 
                 <div class="input">
-                    {{ article_form.text.label }}
-                    {{ article_form.text }}
+                    {{ post_form.text.label }}
+                    {{ post_form.text }}
                     
-                    {% if article_form.text.errors %}
+                    {% if post_form.text.errors %}
                         <ul>
-                            {% for error in article_form.text.errors %}
+                            {% for error in post_form.text.errors %}
                                 <li>{{ error }}</li>
                             {% endfor %}
                         </ul>
@@ -46,17 +46,19 @@
                 </div>
 
                 <div class="input">
-                    {{ article_form.image.label }}
-                    {{ article_form.image }}
-                    
-                    <img id="preview-img" src="{{ url_for('.static', filename='images/news/{}'.format(image_name)) }}"/>
-                    
+                    {{ post_form.image.label }}
+                    {{ post_form.image }}
+
+                    <img id="preview-img" style="visibility: {{ 'visible' if image_name else 'hidden' }};"
+                    src="{{ url_for('.static', filename='images/news/{}'.format(image_name)) }}"/>
+
                     <script type="text/javascript">
                         function imgPreview(input) {
                             if (input.files && input.files[0]) {
                                 var reader = new FileReader();
                                 reader.onload = function (e) {
                                     $('#preview-img').attr('src', e.target.result);
+                                    $('#preview-img').css('visibility', 'visible');
                                 };
                                 reader.readAsDataURL(input.files[0]);
                             }
@@ -67,9 +69,9 @@
                         });
                     </script>
 
-                    {% if article_form.image.errors %}
+                    {% if post_form.image.errors %}
                         <ul>
-                            {% for error in article_form.image.errors %}
+                            {% for error in post_form.image.errors %}
                                 <li>{{ error }}</li>
                             {% endfor %}
                         </ul>
