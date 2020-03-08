@@ -4,7 +4,7 @@ from flask_uploads import IMAGES
 from wtforms import (
     StringField, PasswordField, BooleanField, TextAreaField
 )
-from wtforms.validators import DataRequired, Email, Length, EqualTo, Optional
+from wtforms.validators import DataRequired, Email, Length, EqualTo
 from wtforms.widgets import PasswordInput
 
 
