@@ -1,17 +1,18 @@
 from flask import (
     Blueprint, render_template, render_template_string, jsonify, redirect,
-    url_for, request, flash, current_app as app
+    url_for, request, flash, abort, current_app as app
 )
 from flask_login import (
     login_required, login_user, logout_user, current_user,
 )
 
 # Models
-from app.models.forms import SigninForm, SignupForm
+from app.models.forms import (
+    UserProfileForm, SigninForm, SignupForm, EditUserProfileForm
+)
 from app.models.tables import User
 
 from app import lm, db
-
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -22,9 +23,18 @@ users_bp = Blueprint('users_bp', __name__, url_prefix='/users',
                      static_folder='static')
 
 
+def check_restricted_fields(user_form, user):
+    if user_form.password.raw_data is None:
+        user_form.password.data = user._password
+
+    if user_form.is_admin.raw_data is None:
+        user_form.is_admin.data = user.is_admin()
+
+
 @lm.user_loader
 def load_user(user_id):
     """ Busca o usuário relacionado ao `user_id` da sessão """
+
     if user_id is not None:
         return User.query.get(user_id)
 
@@ -32,30 +42,117 @@ def load_user(user_id):
 @lm.unauthorized_handler
 def unauthorized():
     """ Redirecionar usuários não autenticados """
+
     flash('Você deve estar autenticado para ver esta página')
     return redirect(url_for('users_bp.signin', next=request.path))
 
 
-@users_bp.route('/', methods=['GET'])
+@users_bp.route('/admin/management/', methods=['GET'])
 @login_required
 def show_users():
-    """ Lista todos os usuários """
-    if current_user.is_admin():
-        users = User.query.with_entities(
-            User.user_id, User.username
-        ).all()
-        return render_template("users_list_users.html", users=users)
+    """ Listar todos os usuários """
 
-    flash('Você não tem permissão para acessar esta página!')
-    return redirect(url_for('news_bp.show_posts'))
+    if not current_user.is_admin():
+        flash('Você não tem permissão para acessar esta página!')
+        return redirect(url_for('news_bp.show_posts'))
+
+    users = User.query.with_entities(
+        User.user_id, User.username
+    ).all()
+
+    return render_template("users_list_users.html", users=users)
 
 
-@users_bp.route('/<username>/details', methods=['GET'])
+@users_bp.route('/<username>/details/', methods=['GET'])
 @login_required
 def show_user(username):
-    """ Carrega o usuário pelo respectivo `user_id` """
+    """ Carrega o usuário pelo respectivo `username` """
+
     user = User.query.filter_by(username=username).first()
+
+    if not user:
+        response = {
+            'title': 'Usuário inexistente',
+            'message': 'Desculpe, este usuário não existe :('
+        }
+        abort(404, response=response)
+
     return render_template('users_view_user.html', user=user)
+
+
+@users_bp.route('/<username>/edit/', methods=['GET', 'POST'])
+@login_required
+def update_user(username):
+    """ Editar informações do usuário """
+
+    user = User.query.filter_by(username=username).first()
+    user_form = EditUserProfileForm(obj=user)
+
+    if user:
+
+        check_restricted_fields(user_form, user)
+
+        if request.method == 'POST':
+
+            if request.referrer == request.url:
+
+                if user_form.validate_on_submit():
+
+                    user_name = user_form.name.data
+                    user_email = user_form.email.data
+                    user_username = user_form.username.data
+                    user_password = user_form.password.data
+                    user_is_admin = user_form.is_admin.data
+
+                    user.name = user_name
+                    user.email = user_email
+                    user.username = user_username
+                    user._password = user_password
+                    user._is_admin = user_is_admin
+
+                    db.session.commit()
+
+                    flash(f'Dados de {user_username} atualizados com sucesso')
+                    return redirect(url_for('.show_users'))
+
+                else:
+                    logging.warn(f'ERRORS: {user_form.errors}')
+
+    else:
+        response = {
+            'title': 'Usuário não encontrado',
+            'message': 'Este usuário não existe'
+        }
+        abort(404, response=response)
+
+    return render_template('users_edit_user.html',
+                           user_form=user_form,
+                           title="Editar usuário | FlipNews",
+                           form_title="Editar informações",
+                           form_action=url_for('.update_user',
+                                               username=user.username))
+
+
+@users_bp.route('/delete/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    """ Apaga o usuário pelo seu `user_id` """
+
+    user = User.query.get(user_id)
+
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+
+        flash('Usuário apagado com sucesso')
+
+    else:
+        response = {
+            'title': 'Usuário não encontrado',
+            'message': 'Este usuário não existe'
+        }
+        abort(404, response=response)
+
+    return redirect(url_for('.show_users'))
 
 
 @users_bp.route('/auth/signout/')
@@ -71,6 +168,7 @@ def signout():
 @users_bp.route('/auth/signin/', methods=['GET', 'POST'])
 def signin():
     """ Autenticação de usuários """
+
     if current_user.is_authenticated:
         return redirect(url_for('main_bp.index'))
 
@@ -108,6 +206,7 @@ def signin():
 @users_bp.route('/auth/signup/', methods=['GET', 'POST'])
 def signup():
     """ Cadastro de usuários """
+
     if current_user.is_authenticated:
         return redirect(url_for('main_bp.index'))
 

@@ -9,63 +9,57 @@
         <div class="container">
             {% block signup_form_content %}
 
-            <form method="post">
+            <form method="POST">
 
                 {{ signup_form.csrf_token }}
 
                 <div class="input">
-                    <label for="name">Nome</label>
+                    {{ signup_form.name.label }}
                     {{ signup_form.name(placeholder="Seu nome") }}
 
                     {% if signup_form.name.errors %}
-                        <ul>
-                            {% for error in signup_form.name.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
+                        <ul>{% for error in signup_form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
                     {% endif %}
                 </div>
 
                 <div class="input">
-                    <label for="email">E-mail</label>
+                    {{ signup_form.email.label }}
                     {{ signup_form.email(placeholder="Seu e-mail") }}
 
                     {% if signup_form.email.errors %}
-                        <ul>
-                            {% for error in signup_form.email.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
+                        <ul>{% for error in signup_form.email.errors %}<li>{{ error }}</li>{% endfor %}</ul>
                     {% endif %}
                 </div>
 
                 <div class="input">
-                    <label for="username">Nome de usuário</label>
+                    {{ signup_form.username.label }}
                     {{ signup_form.username(placeholder="Seu usuário") }}
 
                     {% if signup_form.username.errors %}
-                        <ul>
-                            {% for error in signup_form.username.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
+                        <ul>{% for error in signup_form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul>
                     {% endif %}
                 </div>
 
                 <div class="input">
-                    <label for="password">Senha</label>
+                    {{ signup_form.password.label }}
                     {{ signup_form.password }}
 
                     {% if signup_form.password.errors %}
-                        <ul>
-                            {% for error in signup_form.password.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
+                        <ul>{% for error in signup_form.password.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+
+                <div class="input">
+                    {{ signup_form.confirm_password.label }}
+                    {{ signup_form.confirm_password }}
+
+                    {% if signup_form.confirm_password.errors %}
+                        <ul>{% for error in signup_form.confirm_password.errors %}<li>{{ error }}</li>{% endfor %}</ul>
                     {% endif %}
                 </div>
 
                 <button type="submit" class="btn submit">Criar conta</button>
+                {{ signup_form.submit }}
             </form>
 
             {% with messages = get_flashed_messages() %}

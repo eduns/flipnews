@@ -25,11 +25,13 @@ news_bp = Blueprint('news_bp', __name__,
 
 def get_unique_image_name(post_image):
     """ Define um nome seguro e único para a imagem """
+
     return f'{uuid4()}_{secure_filename(post_image.filename)}'
 
 
 def get_image_url(image_name):
     """ Retorna a url de onde a imagem será salva """
+
     return f"{app.config['UPLOADED_NEWS_IMAGES_DEST']}/{image_name}"
 
 
@@ -42,6 +44,7 @@ def index():
 @news_bp.route('/posts/', methods=['GET'])
 def show_posts():
     """ Carrega todas as notícias """
+
     posts = Post.query.with_entities(
         Post.post_id, Post.title, Post.image_name
     ).all()
@@ -49,10 +52,11 @@ def show_posts():
 
 
 @news_bp.route('/posts/view/<int:post_id>',
-               methods=['GET', 'POST', 'DELETE'])
+               methods=['GET', 'POST'])
 @login_required
 def show_post(post_id):
     """ Carrega o post pelo respectivo `post_id` """
+
     post = Post.query.get(post_id)
 
     if not post:
@@ -69,6 +73,7 @@ def show_post(post_id):
 @login_required
 def add_post():
     """ Cadastrar novas notícias """
+
     post_form = PostForm()
 
     if request.method == 'POST':
@@ -112,6 +117,8 @@ def add_post():
 
 @news_bp.route('/posts/edit/<int:post_id>', methods=['GET', 'POST'])
 def update_post(post_id):
+    """ Atualiza os dados da notícia pelo `post_id` """
+
     image_name = None
 
     post = Post.query.get(post_id)
@@ -164,14 +171,16 @@ def update_post(post_id):
                            image_name=image_name,
                            title="Editar Notícia | FlipNews",
                            form_title="Editar notícia",
-                           form_action=url_for(
-                               '.update_post',
-                               post_id=post.post_id))
+                           form_action=url_for('.update_post',
+                                               post_id=post.post_id))
 
 
 @news_bp.route('/posts/delete/<int:post_id>', methods=['POST'])
 def delete_post(post_id):
+    """ Apaga a notícia pelo seu `post_id` """
+
     post = Post.query.get(post_id)
+
     if post:
         db.session.delete(post)
         db.session.commit()
@@ -181,6 +190,8 @@ def delete_post(post_id):
 
         flash('Notícia apagada com sucesso')
         return redirect(url_for('.show_posts'))
+
     else:
         flash('Erro ao apagar a notícia')
+
     return redirect(request.referrer)

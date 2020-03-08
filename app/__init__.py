@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, current_app
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
@@ -11,30 +11,27 @@ migrate = Migrate()
 
 def page_not_found(err):
     """ Renderizar erros 404 """
-    template = 'page_not_found.html'
 
-    templates = {
-        '/news': 'news_page_not_found.html'
-    }
+    if not err.response:
+        err.response = {
+            'title': 'Página não encontrada',
+            'message': 'Desculpe, está página não foi encontrada :('
+        }
 
-    for tpl in templates.keys():
-        if request.path.startswith(tpl):
-            template = templates.get(tpl)
-            break
-
-    return render_template(template, response=err.response), 404
+    return render_template('page_not_found.html', response=err.response), 404
 
 
 def add_header(response):
-    """ Adiciona os atributos ao response do header da request """
-    response.headers.add(
-        'Cache-Control', 'no-store, no-cache, must-revalidate,\
+    """ Adiciona atributos ao header response da request """
+
+    response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate,\
         post-check=0, pre-check=0')
     return response
 
 
 def create_app():
     """ Inicializa o app """
+
     app = Flask('FlipNews', instance_relative_config=False)
 
     # Aplica configurações

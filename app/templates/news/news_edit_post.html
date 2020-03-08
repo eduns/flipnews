@@ -2,8 +2,8 @@
     <html>
     <head>
         <meta charset="UTF-8">
-        <title>{{ title }}</title>
         <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery-3.4.1.min.js') }}"></script>
+        <title>{{ title }}</title>
     </head>
     <body>
         <h1>{{ form_title }}</h1>
@@ -13,7 +13,7 @@
 
             <form
                 id="post-form"
-                method="post"
+                method="POST"
                 action="{{ form_action }}"
                 enctype="multipart/form-data">
                 
@@ -57,8 +57,9 @@
                             if (input.files && input.files[0]) {
                                 var reader = new FileReader();
                                 reader.onload = function (e) {
-                                    $('#preview-img').attr('src', e.target.result);
-                                    $('#preview-img').css('visibility', 'visible');
+                                    $('#preview-img')
+                                        .attr('src', e.target.result)
+                                        .css('visibility', 'visible');
                                 };
                                 reader.readAsDataURL(input.files[0]);
                             }
@@ -80,7 +81,7 @@
 
                 <button type="submit" class="btn submit">Postar</button>
             </form>
-            
+
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     <ul>

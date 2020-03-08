@@ -1,29 +1,48 @@
 <!doctype html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title></title>
-    </head>
-    <body>
-        <div class="user">
-            <h1>{{ user.name }}</h1>
-            
-            <p>
-                <span>
-                    Nome: {{ user.name }}
-                </span>
-                <span>
-                    E-mail: {{ user.email }}
-                </span>
-                <span>
-                    Username: {{ user.username }}
-                </span>
-                {% if user.is_admin() %}
-                <span>
-                    Administrador
-                </span>
-                {% endif %}
-            </p>
-        </div>        
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div class="user">
+        {% if current_user.is_admin() %}
+            <form method="POST" action="{{ url_for('.delete_user', user_id=user.user_id) }}">
+                <button type="submit">Apagar usuário</button>
+            </form>
+
+            <form method="POST" action="{{ url_for('.update_user', username=user.username) }}">
+                <button type="submit">Editar dados</button>
+            </form>
+        {% endif %}
+
+        <span>
+            Nome: {{ user.name }}
+        </span>
+
+        <span>
+            E-mail: {{ user.email }}
+        </span>
+
+        <span>
+            Username: {{ user.username }}
+        </span>
+
+        {% if user.is_admin() %}
+            <span>Administrador</span>
+        {% endif %}
+    </div>
+
+    <button><a href="{{ url_for('users_bp.show_users') }}">Voltar</a></button>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+</body>
 </html>
