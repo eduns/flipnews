@@ -74,6 +74,13 @@ def show_post(post_id):
 def add_post():
     """ Cadastrar novas notícias """
 
+    if not current_user.is_admin():
+        response = {
+            'title': 'Não permitido',
+            'message': 'Você não tem permissão para acessar essa página'
+        }
+        abort(403, response=response)
+
     post_form = PostForm()
 
     if request.method == 'POST':
@@ -116,6 +123,7 @@ def add_post():
 
 
 @news_bp.route('/posts/edit/<int:post_id>', methods=['GET', 'POST'])
+@login_required
 def update_post(post_id):
     """ Atualiza os dados da notícia pelo `post_id` """
 
@@ -176,6 +184,7 @@ def update_post(post_id):
 
 
 @news_bp.route('/posts/delete/<int:post_id>', methods=['POST'])
+@login_required
 def delete_post(post_id):
     """ Apaga a notícia pelo seu `post_id` """
 

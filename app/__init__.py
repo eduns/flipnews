@@ -20,6 +20,9 @@ def page_not_found(err):
 
     return render_template('page_not_found.html', response=err.response), 404
 
+def access_denied(err):
+    return render_template('access_denied.html', response=err.response), 403
+
 
 def add_header(response):
     """ Adiciona atributos ao header response da request """
@@ -52,7 +55,9 @@ def create_app():
         app.register_blueprint(users_bp)
         app.register_blueprint(news_bp)
 
+        # Registra os erros respectivos aos seus status codes
         app.register_error_handler(404, page_not_found)
+        app.register_error_handler(403, access_denied)
 
         app.after_request(add_header)
 
