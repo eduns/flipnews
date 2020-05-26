@@ -1,78 +1,121 @@
-<!doctype html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{{ title }}</title>
-        <link rel="stylesheet" href="{{ url_for('.static', filename='css/users/form.css') }}">
-    </head>
-    <body>
-        <div class="container">
-            {% block signup_form_content %}
+{% extends "base_layout.html" %}
 
-            <form method="POST">
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/users/form.css') }}">
+{% endblock %}
 
-                {{ signup_form.csrf_token }}
+{% block page_scripts %}
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/users/forms.js') }}"></script>
+{% endblock %}
 
-                <div class="input">
-                    {{ signup_form.name.label }}
-                    {{ signup_form.name(placeholder="Seu nome") }}
+{% block content %}
+    {% block navbar %}{% endblock %}
+    <div class="form-wrapper">
 
-                    {% if signup_form.name.errors %}
-                        <ul>{% for error in signup_form.name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-                    {% endif %}
-                </div>
+        <div class="logo">
+            <img src="{{ url_for('.static', filename='img/logo.png') }}" width="100" height="100" alt="logo"/>
+        </div>
 
-                <div class="input">
-                    {{ signup_form.email.label }}
-                    {{ signup_form.email(placeholder="Seu e-mail") }}
-
-                    {% if signup_form.email.errors %}
-                        <ul>{% for error in signup_form.email.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-                    {% endif %}
-                </div>
-
-                <div class="input">
-                    {{ signup_form.username.label }}
-                    {{ signup_form.username(placeholder="Seu usuário") }}
-
-                    {% if signup_form.username.errors %}
-                        <ul>{% for error in signup_form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-                    {% endif %}
-                </div>
-
-                <div class="input">
-                    {{ signup_form.password.label }}
-                    {{ signup_form.password }}
-
-                    {% if signup_form.password.errors %}
-                        <ul>{% for error in signup_form.password.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-                    {% endif %}
-                </div>
-
-                <div class="input">
-                    {{ signup_form.confirm_password.label }}
-                    {{ signup_form.confirm_password }}
-
-                    {% if signup_form.confirm_password.errors %}
-                        <ul>{% for error in signup_form.confirm_password.errors %}<li>{{ error }}</li>{% endfor %}</ul>
-                    {% endif %}
-                </div>
-
-                <button type="submit" class="btn submit">Criar conta</button>
-                {{ signup_form.submit }}
-            </form>
-
-            {% with messages = get_flashed_messages() %}
+        {% block signup_form_messages %}
+            <div class="messages-box">
+            {% with messages = get_flashed_messages(with_categories=True) %}
                 {% if messages %}
-                    <ul>
-                        {% for message in messages %}
-                        <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
+                    {% for category, message in messages %}
+
+                        <div class="alerts alerts-box alerts-{{category}}">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
                 {% endif %}
             {% endwith %}
+            </div>
+        {% endblock %}
 
-            {% endblock %}
-        </div>
-    </body>
-</html>
+        <form method="POST">
+            {{ signup_form.csrf_token }}
+
+            <fieldset class="name">
+                {{ signup_form.name.label }}
+                {{ signup_form.name }}
+
+                {% if signup_form.name.errors %}
+                    {% for error in signup_form.name.errors %}
+                        <div class="alerts alerts-box alerts-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset class="email">
+                {{ signup_form.email.label }}
+                {{ signup_form.email }}
+
+                {% if signup_form.email.errors %}
+                    {% for error in signup_form.email.errors %}
+                        <div class="alerts alerts-box alerts-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset class="username">
+                {{ signup_form.username.label }}
+                {{ signup_form.username }}
+
+                {% if signup_form.username.errors %}
+                    {% for error in signup_form.username.errors %}
+                        <div class="alerts alerts-box alerts-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset class="password">
+                {{ signup_form.password.label }}
+                {{ signup_form.password }}
+
+                {% if signup_form.password.errors %}
+                    {% for error in signup_form.password.errors %}
+                        <div class="alerts alerts-box alerts-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset class="confirm-password">
+                {{ signup_form.confirm_password.label }}
+                {{ signup_form.confirm_password }}
+
+                {% if signup_form.confirm_password.errors %}
+                    {% for error in signup_form.confirm_password.errors %}
+                        <div class="alerts alerts-box alerts-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset>
+                <label for="is_admin">
+                    <span>Administrador</span>
+                    {{ signup_form.is_admin }}
+                </label>
+            </fieldset>
+
+            <div class="submit-button">
+                <input type="submit" value="Cadastrar">
+            </div>
+        </form>
+    </div>
+{% endblock %}

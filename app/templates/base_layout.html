@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+    <title>{{ page_title }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:200,300,500" />
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/reset.css') }}" />
+    {% block page_styles %} {% endblock %}
+</head>
+
+<body class="{{ template_class if template_class else ''}}">
+    {% block navbar %}
+        {% include 'navbar.html' %}
+    {% endblock %}
+
+    {% block content %} {% endblock %}
+
+    <script src="{{ url_for('.static', filename='js/jquery-3.4.1.min.js') }}"></script>
+    <script src="{{ url_for('.static', filename='js/popper.min.js') }}"></script>
+    <script src="{{ url_for('.static', filename='js/bootstrap.min.js') }}"></script>
+
+    {% block page_scripts %}{% endblock %}
+</body>
+
+</html>

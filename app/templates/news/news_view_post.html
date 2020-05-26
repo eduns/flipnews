@@ -1,38 +1,36 @@
-<!doctype html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{{ post.title }}</title>
-    </head>
-    <body>
-        <div class="post">
-            {% if current_user.is_admin() %}
-                <form method="POST" action="{{ url_for('.delete_post', post_id=post.post_id) }}">
-                    <button type="submit">Apagar notícia</button>
-                </form>
+{% extends "base_layout.html" %}
 
-                <form method="POST" action="{{ url_for('.update_post', post_id=post.post_id) }}">
-                    <button type="submit">Editar</button>
-                </form>
-            {% endif %}
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" />
+{% endblock %}
 
-            <h1>{{ post.title }}</h1>
-
+{% block content %}
+    <div class="container container-fluid" style="margin-top: 6rem">
+        {% if current_user.is_admin() %}
+            <div class="mb-2 btn-toolbar" role="toolbar">
+                <div class="btn-group mr-2" role="button">
+                    <form method="POST" action="{{ url_for('news_bp.update_post', post_id=post.post_id) }}">
+                        <button type="submit" class="btn btn-info">Editar</button>
+                    </form>
+                </div>
+                <div class="btn-group" role="button">
+                    <form method="POST" action="{{ url_for('news_bp.delete_post', post_id=post.post_id) }}">
+                        <button type="submit" class="btn btn-danger">Apagar</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+        <div class="card" style="width: 60rem">
             {% if post.image_name %}
-                <img src="{{ url_for('.static', filename='images/news/{}'.format(post.image_name)) }}" alt="Imagem da notícia">
+                <img class="card-img-top" src="{{ url_for('.static', filename='img/news/{}'.format(post.image_name)) }}" alt="Imagem da notícia">
             {% endif %}
-
-            <p>{{ post.text }}</p>
+            <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text">{{ post.text }}</p>
+                <a class="card-link" href="{{ url_for('news_bp.show_posts') }}">
+                    <button class="btn btn-secondary">Voltar</button>
+                </a>
+            </div>
         </div>
-        <button><a href="{{ url_for('news_bp.show_posts') }}">Voltar</a></button>
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul>
-                    {% for message in messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-    </body>
-</html>
+    </div>
+{% endblock %}

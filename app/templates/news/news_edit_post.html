@@ -1,99 +1,143 @@
-<!doctype html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <script type="text/javascript" src="{{ url_for('.static', filename='js/jquery-3.4.1.min.js') }}"></script>
-        <title>{{ title }}</title>
-    </head>
-    <body>
-        <h1>{{ form_title }}</h1>
-        
-        <div class="container">
-            {% block post_form_content %}
+{% extends "base_layout.html" %}
 
-            <form
-                id="post-form"
-                method="POST"
-                action="{{ form_action }}"
-                enctype="multipart/form-data">
-                
-                {{ post_form.csrf_token }}
-                
-                <div class="input">
-                    {{ post_form.title.label }}
-                    {{ post_form.title }}
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" />
+    <style>
+        #img-preview-container {
+            max-width: 600px;
+            max-height: 400px
+        }
+    </style>
+{% endblock %}
 
-                    {% if post_form.title.errors %}
-                        <ul>
-                            {% for error in post_form.title.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </div>
+<h1>{{ form_title }}</h1>
 
-                <div class="input">
-                    {{ post_form.text.label }}
-                    {{ post_form.text }}
-                    
-                    {% if post_form.text.errors %}
-                        <ul>
-                            {% for error in post_form.text.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </div>
+{% block content %}
+    <div class="content container container-fluid form-wrapper" style="margin-top: 6rem">
 
-                <div class="input">
-                    {{ post_form.image.label }}
-                    {{ post_form.image }}
-
-                    <img id="preview-img" style="visibility: {{ 'visible' if image_name else 'hidden' }};"
-                    src="{{ url_for('.static', filename='images/news/{}'.format(image_name)) }}"/>
-
-                    <script type="text/javascript">
-                        function imgPreview(input) {
-                            if (input.files && input.files[0]) {
-                                var reader = new FileReader();
-                                reader.onload = function (e) {
-                                    $('#preview-img')
-                                        .attr('src', e.target.result)
-                                        .css('visibility', 'visible');
-                                };
-                                reader.readAsDataURL(input.files[0]);
-                            }
-                        }
-
-                        $("#image").change(function () {
-                            imgPreview(this);
-                        });
-                    </script>
-
-                    {% if post_form.image.errors %}
-                        <ul>
-                            {% for error in post_form.image.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </div>
-
-                <button type="submit" class="btn submit">Postar</button>
-            </form>
-
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul>
-                        {% for message in messages %}
-                        <li>{{ message }}</li>
+        {% block edit_post_messages %}
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                <div class="container mb-3">
+                    {% if messages %}
+                        {% for category, message in messages %}
+    
+                            <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+    
                         {% endfor %}
-                    </ul>
-                {% endif %}
+                    {% endif %}
+                </div>
             {% endwith %}
+        {% endblock %}
 
-            {% endblock %}
-        </div>
-        
-    </body>
-</html>
+        <form id="post-form" method="POST" action="{{ form_action }}" enctype="multipart/form-data">
+
+            {{ post_form.csrf_token }}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    {{ post_form.title.label(class='input-group-text') }}
+                </div>
+                {{ post_form.title(class='form-control') }}
+            </div>
+
+            {% if post_form.title.errors %}
+                <div class="container">
+                    {% for error in post_form.title.errors %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ error }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    {{ post_form.image.label(class='input-group-text') }}
+                </div>
+                <div class="custom-file">
+                    {{ post_form.image(class='custom-file-input') }}
+                    <label class="custom-file-label" for="image">{{ 'Editar' if image_name else 'Escolher' }} imagem</label>
+                </div>
+            </div>
+
+            {% if post_form.image.errors %}
+                <div class="container">
+                    {% for error in post_form.image.errors %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            {{ error }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="container mb-3">
+                <div id="img-preview-container" class="mx-auto">
+                    <img id="preview-img" class="img-fluid rounded"
+                    src="{{ url_for('.static', filename='img/news/{}'.format(image_name)) if image_name else '' }}"
+                    style="display: {{ 'visible' if image_name else 'hidden' }}"
+                    />
+                </div>
+            </div>
+
+            <div class="form-group input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">{{ post_form.text.label }}</span>
+                </div>
+                {{ post_form.text(class='form-control', rows='6') }}
+            </div>
+
+            {% if post_form.text.errors %}
+                <div class="container">
+                    {% for error in post_form.text.errors %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            {{ error }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="form-group row">
+                <div class="col-sm-10">
+                    <input type="submit" class="btn btn-primary" value="Postar">
+                    <a href="{{ url_for('.show_posts') }}">
+                        <button type="button" class="btn btn-secondary">Voltar</button>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block page_scripts %}
+    <script type="text/javascript">
+        function imgPreview(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#preview-img')
+                        .attr('src', e.target.result)
+                        .css('visibility','visible');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#image").change(function () {
+            imgPreview(this);
+        });
+    </script>
+{% endblock %}

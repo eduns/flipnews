@@ -23,7 +23,7 @@ class UserProfileForm(FlaskForm):
     username = StringField('Usuário', validators=[
         DataRequired(message='Insira o nome de usuário'),
         Length(min=5, max=30,
-               message='O nome de usuário de pelo menos 5 caracteres\
+               message='O nome de usuário deve ter pelo menos 5 caracteres\
                 e no máximo 30')
     ])
 
@@ -36,10 +36,12 @@ class UserProfileForm(FlaskForm):
 class SignupForm(UserProfileForm):
     """ Formulário de cadastro de usuários """
 
-    confirm_password = PasswordField('Confirme sua senha', validators=[
+    confirm_password = PasswordField('Confirme a senha', validators=[
         DataRequired(message='Insira a confirmação de senha'),
         EqualTo('password', message='As senhas não correspondem')
     ])
+
+    is_admin = BooleanField('Administrador')
 
 
 class EditUserProfileForm(UserProfileForm):
@@ -66,15 +68,15 @@ class SigninForm(FlaskForm):
 class PostForm(FlaskForm):
     """ Formulário de cadastro de notícia """
 
-    title = StringField('Título da notícia', validators=[
+    title = StringField('Título', validators=[
         DataRequired(message='Insira o título desta notícia')
     ])
 
-    text = TextAreaField('Texto da notícia', validators=[
+    text = TextAreaField('Texto', validators=[
         DataRequired('Insira o texto desta notícia')
     ])
 
-    image = FileField('Imagem da notícia', validators=[
+    image = FileField('Imagem', validators=[
         FileAllowed(IMAGES, f'Escolha imagens válidas. Formatos permitidos: \
             {", ".join(IMAGES)}')
     ])

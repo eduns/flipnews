@@ -1,51 +1,79 @@
-<!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="{{ url_for('.static', filename='css/users/form.css') }}">
-        <title>{{ title }}</title>
-    </head>
-    <body>
-        <h1>SIGN IN</h1>
-        
-        <div class="container">
-            {% block signin_form_content %}
+{% extends "base_layout.html" %}
 
-            <form method="POST">
+{% block page_styles %}
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/users/form.css') }}">
+{% endblock %}
 
-                {{ signin_form.csrf_token }}
+{% block page_scripts %}
+    <script type="text/javascript" src="{{ url_for('.static', filename='js/users/forms.js') }}"></script>
+{% endblock %}
 
-                <div class="input">
-                    <label for="email">E-mail</label>
-                    {{ signin_form.email(placeholder="Seu e-mail") }}
-                </div>
+{% block content %}
+    {% block navbar %}{% endblock %}
+    <div class="form-wrapper">
 
-                <div class="input">
-                    <label for="password">Senha</label>
-                    {{ signin_form.password }}
-                </div>
+        <div class="logo">
+            <img src="{{ url_for('.static', filename='img/logo.png') }}" width="100" height="100" alt="logo" />
+        </div>
 
-                <div class="checkbox">
-                    <label>
-                        {{ signin_form.remember_me }} Lembre-se de mim
-                    </label>
-                </div>
-
-                <button type="submit" class="btn submit">Entrar</button>
-                <button class="btn signup"><a href="{{ url_for('users_bp.signup') }}">Assine agora</a></button>
-            </form>
-            
-            {% with messages = get_flashed_messages() %}
+        {% block signin_form_messages %}
+            <div class="messages-box">
+            {% with messages = get_flashed_messages(with_categories=True) %}
                 {% if messages %}
-                    <ul>
-                        {% for message in messages %}
-                        <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
+                    {% for category, message in messages %}
+
+                        <div class="alerts alerts-box alerts-{{category}}">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ message }}
+                        </div>
+
+                    {% endfor %}
                 {% endif %}
             {% endwith %}
-            
-            {% endblock %}
-        </div>
-    </body>
-</html>
+            </div>
+        {% endblock %}
+
+        <form method="POST">
+            {{ signin_form.csrf_token }}
+
+            <fieldset>
+                {{ signin_form.email.label }}
+                {{ signin_form.email(placeholder="Seu e-mail") }}
+
+                {% if signin_form.email.errors %}
+                    {% for error in signin_form.email.errors %}
+                        <div class="alerts alerts-box alerts-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset>
+                {{ signin_form.password.label }}
+                {{ signin_form.password(placeholder="Sua senha") }}
+
+                {% if signin_form.password.errors %}
+                    {% for error in signin_form.password.errors %}
+                        <div class="alerts alerts-box alerts-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </fieldset>
+
+            <fieldset>
+                <label for="remember_me">
+                    <span>Lembrar credenciais</span>
+                    {{ signin_form.remember_me }}
+                </label>
+            </fieldset>
+
+            <div class="submit-button">
+                <input type="submit" value="Entrar">
+            </div>
+        </form>
+    </div>
+{% endblock %}

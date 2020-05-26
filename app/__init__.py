@@ -1,16 +1,22 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
+from flask_mail import Mail
+
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path='../.env')
 
 db = SQLAlchemy()
 lm = LoginManager()
 migrate = Migrate()
+mail = Mail()
 
 
 def page_not_found(err):
-    """ Renderizar erros 404 """
+    """ Renderizar responses htttp status 404 """
 
     if not err.response:
         err.response = {
@@ -20,7 +26,10 @@ def page_not_found(err):
 
     return render_template('page_not_found.html', response=err.response), 404
 
+
 def access_denied(err):
+    """ Renderizar responses http status 403 """
+
     return render_template('access_denied.html', response=err.response), 403
 
 
@@ -44,12 +53,13 @@ def create_app():
     db.init_app(app)
     lm.init_app(app)
     migrate.init_app(app, db)
+    mail.init_app(app)
 
     with app.app_context():
         # Importa e registra os Blueprints
-        from app.main_routes import main_bp
-        from app.users_routes import users_bp
-        from app.news_routes import news_bp
+        from app.controllers.main_routes import main_bp
+        from app.controllers.users_routes import users_bp
+        from app.controllers.news_routes import news_bp
 
         app.register_blueprint(main_bp)
         app.register_blueprint(users_bp)
@@ -59,6 +69,7 @@ def create_app():
         app.register_error_handler(404, page_not_found)
         app.register_error_handler(403, access_denied)
 
+        # Registra as funções executadas depois da request
         app.after_request(add_header)
 
         # Adiciona o comando do db ao app

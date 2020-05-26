@@ -1,12 +1,29 @@
+from os import getenv
+
 APP_NAME = 'FlipNews'
 
 ASSETS_DEBUG = True
 
 DEBUG = True
 
-SECRET_KEY = 'edugenix'
+SECRET_KEY = getenv('SECRET_KEY')
 
-SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:edugenix@localhost:5432/flipnews'
+SQLALCHEMY_DATABASE_URI = getenv('SQLALCHEMY_DATABASE_URI')
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-UPLOADED_NEWS_IMAGES_DEST = 'app/static/images/news'
+NEWS_PAGES_DEFAULTS = {
+    'TITLE': f'Notícias | {APP_NAME}'
+}
+USERS_PAGES_DEFAULTS = {
+    'TITLE': f'Informações de usuário | {APP_NAME}'
+}
+
+UPLOADED_NEWS_IMAGES_DEST = 'app/static/img/news'
+
+MAIL_SERVER = getenv('MAIL_SERVER')
+MAIL_PORT = getenv('MAIL_PORT')
+MAIL_USERNAME = getenv('MAIL_USERNAME')
+MAIL_PASSWORD = getenv('MAIL_PASSWORD')
+MAIL_USE_TLS = True
+MAIL_USE_SSL = False
+MAIL_DEBUG = True

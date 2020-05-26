@@ -4,9 +4,10 @@
     <link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap.min.css') }}" />
 {% endblock %}
 
+
 {% block content %}
-    <div class="container container-fluid" style="margin-top: 5rem">
-        {% block show_posts_messages %}
+    <div class="container container-fluid" style="margin-top: 6rem">
+        {% block show_users_messages %}
             {% with messages = get_flashed_messages(with_categories=True) %}
                 <div class="mt-4 container">
                     {% if messages %}
@@ -25,25 +26,22 @@
             {% endwith %}
         {% endblock %}
 
-        {% if posts %}
-            {% for post in posts %}
+        <div class="mb-2 btn-toolbar" role="toolbar">
+            <div class="btn-group mr-2" role="button">
+                <a href="{{ url_for('users_bp.signup') }}">
+                    <button type="button" class="btn btn-primary">Criar novo usuário</button>
+                </a>
+            </div>
+        </div>
 
-                <div class="row">
-                    <div class="mt-4 col-sm">
-                        <div class="card" style="width: 18rem">
-                            <a href="{{ url_for('news_bp.show_post', post_id=post.post_id) }}">
-                                {% if post.image_name %}
-                                <img class="card-img-top" src="{{ url_for('.static', filename='img/news/{}'.format(post.image_name)) }}" alt="Imagem da notícia">
-                                {% endif %}
-                                <div class="card-body">
-                                    <p class="card-text">{{ post.title }}</p>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            {% endfor %}
+        {% if users %}
+            <div class="list-group">
+                {% for user in users %}
+                    <form method="POST" action="{{ url_for('users_bp.update_user', username=user.username) }}">
+                        <button type="submit" class="list-group-item list-group-item-action">{{ user.username }}</button>
+                    </form>
+                {% endfor %}
+            </div>
         {% endif %}
     </div>
 {% endblock %}

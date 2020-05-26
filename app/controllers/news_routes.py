@@ -6,8 +6,9 @@ from flask_login import (
     login_required, current_user
 )
 from werkzeug.utils import secure_filename
+from flask_mail import Message
 
-from app import db
+from app import db, mail
 
 from app.models.forms import PostForm
 from app.models.tables import Post
@@ -17,10 +18,9 @@ from os import system
 import logging
 from datetime import datetime
 
-news_bp = Blueprint('news_bp', __name__,
-                    template_folder='templates/news',
-                    static_folder='static',
-                    url_prefix='/news')
+news_bp = Blueprint('news_bp', __name__, url_prefix='/news',
+                    template_folder='../templates/news',
+                    static_folder='../static')
 
 
 def get_unique_image_name(post_image):
@@ -35,10 +35,20 @@ def get_image_url(image_name):
     return f"{app.config['UPLOADED_NEWS_IMAGES_DEST']}/{image_name}"
 
 
-@news_bp.route('/', methods=['GET'])
-def index():
-    """ Rota de notícias """
-    return render_template('news.html')
+def send_email(post_title):
+    """ Envia e-mail de nova notícia aos usuários """
+
+    try:
+        message = Message('Nova notícia disponível',
+                          sender='noreply@flipnews.com',
+                          recipients=['edugenix@gmail.com'],
+                          body=post_title)
+
+        mail.send(message)
+
+        logging.info(f'MAIL SENT TO USERS')
+    except Exception as ex:
+        logging.error(ex.msg)
 
 
 @news_bp.route('/posts/', methods=['GET'])
@@ -47,12 +57,12 @@ def show_posts():
 
     posts = Post.query.with_entities(
         Post.post_id, Post.title, Post.image_name
-    ).all()
+    ).order_by(Post.post_id).all()
+
     return render_template('news_show_posts.html', posts=posts)
 
 
-@news_bp.route('/posts/view/<int:post_id>',
-               methods=['GET', 'POST'])
+@news_bp.route('/posts/view/<int:post_id>', methods=['GET', 'POST'])
 @login_required
 def show_post(post_id):
     """ Carrega o post pelo respectivo `post_id` """
@@ -61,8 +71,8 @@ def show_post(post_id):
 
     if not post:
         response = {
-            'title': 'Conteúdo não encontrado',
-            'message': 'Desculpe, este conteúdo não existe :('
+            'title': 'Notícias | FlipNews',
+            'message': 'Desculpe, este conteúdo não foi encontrado'
         }
         abort(404, response=response)
 
@@ -76,7 +86,7 @@ def add_post():
 
     if not current_user.is_admin():
         response = {
-            'title': 'Não permitido',
+            'title': 'Acesso restrito',
             'message': 'Você não tem permissão para acessar essa página'
         }
         abort(403, response=response)
@@ -97,20 +107,22 @@ def add_post():
                 image_url = get_image_url(post_image_name)
 
                 post_image.save(image_url)
-                flash('Upload da imagem concluído')
+                flash('Upload da imagem concluído', category='success')
 
             post = Post(
                 title=post_title,
                 text=post_text,
                 created_at=post_created_at,
-                image_name=post_filename,
+                image_name=post_image_name,
                 author_id=current_user.get_id()
             )
 
             db.session.add(post)
             db.session.commit()
 
-            flash('Notícia postada com sucesso')
+            send_email(post_title)
+
+            flash('Notícia postada com sucesso', category='success')
             return redirect(url_for('.add_post'))
 
         else:
@@ -118,7 +130,7 @@ def add_post():
 
     return render_template('news_edit_post.html',
                            post_form=post_form,
-                           title="Nova notícia | FlipNews",
+                           page_title="Nova notícia | FlipNews",
                            form_title="Postar nova notícia")
 
 
@@ -157,27 +169,29 @@ def update_post(post_id):
                         post.image_name = post_image_name
 
                         post_image.save(image_url)
-                        flash('Upload da nova imagem concluído')
+                        flash('Upload da nova imagem concluído',
+                              category='success')
 
                         system(f'rm {app.config["UPLOADED_NEWS_IMAGES_DEST"]}/\
-                        {image_name}')
+                        {old_image_name}')
 
                     db.session.commit()
 
-                    flash('Notícia atualizada com sucesso')
-                    return redirect(url_for('.show_posts'))
-
+                    flash('Notícia atualizada com sucesso', category='success')
                 else:
                     logging.warn(f'ERRORS: {post_form.errors}')
 
     else:
-        flash('Notícia inexistente!')
-        return redirect(url_for('.show_posts'))
+        response = {
+            'title': 'Notícias | FlipNews',
+            'message': 'Desculpe, este conteúdo não foi encontrado'
+        }
+        abort(404, response=response)
 
     return render_template('news_edit_post.html',
                            post_form=post_form,
                            image_name=image_name,
-                           title="Editar Notícia | FlipNews",
+                           page_title="Editar Notícia | FlipNews",
                            form_title="Editar notícia",
                            form_action=url_for('.update_post',
                                                post_id=post.post_id))
@@ -191,16 +205,15 @@ def delete_post(post_id):
     post = Post.query.get(post_id)
 
     if post:
+
         db.session.delete(post)
         db.session.commit()
 
         system(f'rm {app.config["UPLOADED_NEWS_IMAGES_DEST"]}/\
         {post.image_name}')
 
-        flash('Notícia apagada com sucesso')
-        return redirect(url_for('.show_posts'))
-
+        flash('Notícia apagada com sucesso', category='success')
     else:
-        flash('Erro ao apagar a notícia')
+        flash('Erro ao apagar a notícia', category='warning')
 
-    return redirect(request.referrer)
+    return redirect(url_for('.show_posts'))

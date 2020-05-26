@@ -33,11 +33,12 @@ class User(db.Model):
     def get_id(self):
         return f'{self.user_id}'
 
-    def __init__(self, name, email, username, password):
+    def __init__(self, name, email, username, password, is_admin):
         self.name = name
         self.email = email
         self.username = username
         self._password = password
+        self._is_admin = is_admin
 
     def __repr__(self):
         return f'<User {self.username}>'

@@ -1,8 +1,8 @@
 venv/
-
+.env
 .vscode/
 
 __pycache__/
 *.pyc
 
-app/news/static/images/
+app/static/img/
