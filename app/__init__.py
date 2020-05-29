@@ -68,4 +68,6 @@ def create_app():
         # Registra as funções executadas depois da request
         app.after_request(add_header)
 
+        db.create_all()
+
         return app
