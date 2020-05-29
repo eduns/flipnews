@@ -49,7 +49,6 @@ def create_app():
     # Inicializa as extensões ao app
     db.init_app(app)
     lm.init_app(app)
-    migrate.init_app(app, db)
     mail.init_app(app)
 
     with app.app_context():
