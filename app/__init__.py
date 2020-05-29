@@ -1,17 +1,16 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
+from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv(dotenv_path='../.env')
+load_dotenv(find_dotenv())
 
 db = SQLAlchemy()
 lm = LoginManager()
-migrate = Migrate()
 mail = Mail()
 
 
@@ -41,18 +40,17 @@ def add_header(response):
     return response
 
 
-def create_app():
+def create_app(config_name='config'):
     """ Inicializa o app """
 
     app = Flask('FlipNews', instance_relative_config=False)
 
     # Aplica configurações
-    app.config.from_object('config')
+    app.config.from_object(config_name)
 
     # Inicializa as extensões ao app
     db.init_app(app)
     lm.init_app(app)
-    migrate.init_app(app, db)
     mail.init_app(app)
 
     with app.app_context():
@@ -71,9 +69,5 @@ def create_app():
 
         # Registra as funções executadas depois da request
         app.after_request(add_header)
-
-        # Adiciona o comando do db ao app
-        manager = Manager(app)
-        manager.add_command('db', MigrateCommand)
 
         return app
