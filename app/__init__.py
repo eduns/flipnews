@@ -1,7 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_script import Manager
-from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 
@@ -40,17 +38,18 @@ def add_header(response):
     return response
 
 
-def create_app(config_name='config'):
+def create_app():
     """ Inicializa o app """
 
     app = Flask('FlipNews', instance_relative_config=False)
 
     # Aplica configurações
-    app.config.from_object(config_name)
+    app.config.from_object('config')
 
     # Inicializa as extensões ao app
     db.init_app(app)
     lm.init_app(app)
+    migrate.init_app(app, db)
     mail.init_app(app)
 
     with app.app_context():
