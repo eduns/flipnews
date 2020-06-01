@@ -15,6 +15,7 @@ from app.models.tables import Post
 
 from uuid import uuid4
 from os import system
+from sys import platform
 import logging
 from datetime import datetime
 
@@ -172,8 +173,9 @@ def update_post(post_id):
                         flash('Upload da nova imagem concluído',
                               category='success')
 
-                        system(f'rm {app.config["UPLOADED_NEWS_IMAGES_DEST"]}/\
-                        {old_image_name}')
+                        del_command = 'rm' if platform == 'linux' else 'del'
+                        img_dest = app.config["UPLOADED_NEWS_IMAGES_DEST"]
+                        system(f'{del_command} {img_dest}/{image_name}')
 
                     db.session.commit()
 
@@ -190,9 +192,8 @@ def update_post(post_id):
 
     return render_template('news_edit_post.html',
                            post_form=post_form,
-                           image_name=image_name,
+                           image_name=post.image_name,
                            page_title="Editar Notícia | FlipNews",
-                           form_title="Editar notícia",
                            form_action=url_for('.update_post',
                                                post_id=post.post_id))
 
@@ -209,8 +210,9 @@ def delete_post(post_id):
         db.session.delete(post)
         db.session.commit()
 
-        system(f'rm {app.config["UPLOADED_NEWS_IMAGES_DEST"]}/\
-        {post.image_name}')
+        del_command = 'rm' if platform == 'linux' else 'del'
+        img_dest = app.config["UPLOADED_NEWS_IMAGES_DEST"]
+        system(f'{del_command} {img_dest}/{post.image_name}')
 
         flash('Notícia apagada com sucesso', category='success')
     else:

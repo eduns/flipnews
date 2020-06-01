@@ -70,4 +70,6 @@ def create_app():
 
         db.create_all()
 
+        db.create_all()
+
         return app
