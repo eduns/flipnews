@@ -5,9 +5,9 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
 from flask_mail import Mail
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv(dotenv_path='../.env')
+load_dotenv(find_dotenv())
 
 db = SQLAlchemy()
 lm = LoginManager()
@@ -75,5 +75,7 @@ def create_app():
         # Adiciona o comando do db ao app
         manager = Manager(app)
         manager.add_command('db', MigrateCommand)
+
+        db.create_all()
 
         return app
