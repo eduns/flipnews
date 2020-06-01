@@ -116,8 +116,7 @@ def update_user(username):
     return render_template('users_edit_user.html',
                            user=user,
                            user_form=user_form,
-                           title="Editar usuário | FlipNews",
-                           form_title="Editar informações")
+                           title="Editar usuário | FlipNews")
 
 
 @users_bp.route('/delete/<username>', methods=['POST'])

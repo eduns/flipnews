@@ -131,8 +131,7 @@ def add_post():
 
     return render_template('news_edit_post.html',
                            post_form=post_form,
-                           page_title="Nova notícia | FlipNews",
-                           form_title="Postar nova notícia")
+                           page_title="Nova notícia | FlipNews")
 
 
 @news_bp.route('/posts/edit/<int:post_id>', methods=['GET', 'POST'])
