@@ -11,7 +11,7 @@ from flask_mail import Message
 from app import db, mail
 
 from app.models.forms import PostForm
-from app.models.tables import Post
+from app.models.tables import Post, User
 
 from uuid import uuid4
 from os import system
@@ -40,12 +40,16 @@ def send_email(post_title):
     """ Envia e-mail de nova notícia aos usuários """
 
     try:
-        message = Message('Nova notícia disponível',
-                          sender='noreply@flipnews.com',
-                          recipients=['edugenix@gmail.com'],
-                          body=post_title)
+        emails = User.query.with_entities(User.email).filter_by(
+            _is_admin='f'
+        ).all()
 
-        mail.send(message)
+        for email in emails:
+            message = Message(subject='Nova notícia disponível',
+                              recipients=[email[0]],
+                              body=post_title)
+
+            mail.send(message)
 
         logging.info(f'MAIL SENT TO USERS')
     except Exception as ex:
@@ -209,9 +213,10 @@ def delete_post(post_id):
         db.session.delete(post)
         db.session.commit()
 
-        del_command = 'rm' if platform == 'linux' else 'del'
-        img_dest = app.config["UPLOADED_NEWS_IMAGES_DEST"]
-        system(f'{del_command} {img_dest}/{post.image_name}')
+        if post.image_name is not None:
+            del_command = 'rm' if platform == 'linux' else 'del'
+            img_dest = app.config["UPLOADED_NEWS_IMAGES_DEST"]
+            system(f'{del_command} {img_dest}/{post.image_name}')
 
         flash('Notícia apagada com sucesso', category='success')
     else:
